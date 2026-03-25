@@ -26,10 +26,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
           pip3 install --user --upgrade buildozer
-          pip3 install --user --upgrade Cython==0.29.33  # Buildozer को लागि आवश्यक
+          pip3 install --user --upgrade Cython==0.29.33
 
       - name: Build with Buildozer
         run: |
           export PATH=$PATH:~/.local/bin
-          # यदि .spec फाइल छैन भने यसले आफै बनाउँछ (तर हामीले अपलोड गरिसकेका छौँ)
-          buildozer android debug || { echo "Build failed, showing logs..."; exit 100; }
+          # यदि फाइल छैन भने सुरु गर्छ, तर लगहरू देखाउँछ
+          buildozer android debug || { echo "Build failed! Please check the logs above."; exit 1; }
