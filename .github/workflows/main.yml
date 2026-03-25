@@ -5,7 +5,6 @@ on:
     branches: [ "main" ]
 
 env:
-  # Node.js 24 को चेतावनी हटाउन र भविष्यको लागि सुरक्षित राख्न
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
@@ -24,24 +23,26 @@ jobs:
       - name: Install System Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo6 cmake libffi-dev libssl-dev
+          # autoconf, automake, libtool, र m4 लाई अनिवार्य रूपमा अपडेट गर्ने
+          sudo apt-get install -y git zip unzip openjdk-17-jdk python3-pip autoconf automake libtool m4 pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo6 cmake libffi-dev libssl-dev
           pip3 install --user --upgrade buildozer Cython==0.29.33
 
-      - name: Install Android SDK Build Tools (AIDL Fix)
+      - name: Install Android SDK Build Tools
         run: |
-          # GitHub Runner मा AIDL सहितको Build Tools सेटअप गर्ने
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME "build-tools;34.0.0" "platforms;android-34" "platform-tools"
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME "build-tools;34.0.0" "platforms;android-34"
+
+      - name: Clean and Pre-configure Autotools
+        run: |
+          # केही म्याक्रो एररहरू हटाउनका लागि म्यानुअल लिङ्किङ
+          sudo ln -s /usr/share/aclocal /usr/local/share/aclocal || true
+          # यदि अघिल्लो बिल्डको केही अवशेष छ भने सफा गर्ने
+          rm -rf .buildozer/ build/
 
       - name: Build with Buildozer
         run: |
           export PATH=$PATH:~/.local/bin
-          # यदि .spec फाइल छैन भने एरर दिने
-          if [ ! -f buildozer.spec ]; then
-            echo "ERROR: buildozer.spec not found!"
-            exit 1
-          fi
-          # एन्ड्रोइड डिबग APK बनाउने (यसले २०-३० मिनेट लिन सक्छ)
-          buildozer android debug || { echo "Build failed! Check logs above."; exit 1; }
+          # धेरै विवरण हेर्न log_level = 2 प्रयोग गरिएको छ
+          buildozer android debug || { echo "Build failed! Please check logs."; exit 1; }
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
