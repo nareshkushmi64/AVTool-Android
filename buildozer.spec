@@ -5,10 +5,7 @@ package.domain = org.nkushmi
 source.dir = .
 source.include_exts = py,png,jpg,kv,atlas
 version = 1.0
-
-# महत्वपूर्ण लाइब्रेरीहरू
 requirements = python3, kivy, ffmpeg, ffprobe, android
-
 orientation = portrait
 fullscreen = 1
 android.permissions = READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE, MANAGE_EXTERNAL_STORAGE
