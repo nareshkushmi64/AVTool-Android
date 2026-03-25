@@ -5,7 +5,7 @@ on:
     branches: [ "main" ]
 
 env:
-  # Node.js 24 को चेतावनी हटाउन र भविष्यको लागि सुरक्षित राख्न
+  # यसले Node.js 24 को चेतावनीलाई हटाउँछ र नयाँ भर्सनमा चल्न मद्दत गर्छ
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
@@ -31,5 +31,9 @@ jobs:
       - name: Build with Buildozer
         run: |
           export PATH=$PATH:~/.local/bin
-          # यदि फाइल छैन भने सुरु गर्छ, तर लगहरू देखाउँछ
-          buildozer android debug || { echo "Build failed! Please check the logs above."; exit 1; }
+          # यदि फाइल भेटिएन भने यहाँ स्पष्ट एरर म्यासेज देखिनेछ
+          if [ ! -f buildozer.spec ]; then
+            echo "ERROR: buildozer.spec file not found in the root directory!"
+            exit 1
+          fi
+          buildozer android debug
