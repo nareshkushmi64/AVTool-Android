@@ -5,7 +5,6 @@ on:
     branches: [ "main" ]
 
 env:
-  # यसले Node.js 24 को चेतावनीलाई हटाउँछ र नयाँ भर्सनमा चल्न मद्दत गर्छ
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
@@ -24,16 +23,18 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
+          # libtinfo5 को सट्टा libtinfo6 राखिएको छ
+          sudo apt-get install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo6 cmake libffi-dev libssl-dev
           pip3 install --user --upgrade buildozer
           pip3 install --user --upgrade Cython==0.29.33
 
       - name: Build with Buildozer
         run: |
           export PATH=$PATH:~/.local/bin
-          # यदि फाइल भेटिएन भने यहाँ स्पष्ट एरर म्यासेज देखिनेछ
+          # buildozer.spec फाइल चेक गर्ने
           if [ ! -f buildozer.spec ]; then
-            echo "ERROR: buildozer.spec file not found in the root directory!"
+            echo "ERROR: buildozer.spec file not found!"
             exit 1
           fi
-          buildozer android debug
+          # पहिलो पटक बिल्ड गर्दा केही समय लाग्छ
+          buildozer android debug || { echo "Build failed! Check the logs above."; exit 1; }
